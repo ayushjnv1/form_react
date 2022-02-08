@@ -3,6 +3,7 @@ import { Project } from './Components/Project'
 
 import { FormCom } from './Components/form'
 import { useState } from 'react';
+import { Signup } from './Components/Signup';
 
 
 function App() {
@@ -16,7 +17,9 @@ function App() {
         isLogin ?
           <Project /> :
           <FormCom setLogin={LoginSuccessful} />
+
       }
+      <Signup />
 
     </>
   );

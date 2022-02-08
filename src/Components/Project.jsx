@@ -4,7 +4,7 @@ import { CardComponet } from "./CardComponent";
 export const Project = () => {
   const [user, setUser] = useState([]);
   useEffect(() => {
-    fetch("https://reqres.in/api/users?page=2")
+    fetch("https://reqres.in/api/users?page=1")
       .then((res) => res.json())
       .then((data) => {
         console.log(data.data[0].first_name);

@@ -1,47 +1,90 @@
 import { Alert } from "bootstrap";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { Button, Container, Form, FormGroup, Input, Label } from "reactstrap";
+import * as yup from "yup";
 
 export const FormCom = (props) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+
+  const loginConstraint = {
+    setEmail: "SET_EMAIL",
+    setPassword: "SET_PASSWORD",
+  };
+  const initalState = {
+    email: "",
+    password: "",
+  };
+  const reducer = (state, action) => {
+    const { type, payload } = action;
+    switch (type) {
+      case loginConstraint.setEmail: {
+        return { ...state, email: payload };
+      }
+      case loginConstraint.setPassword: {
+        return { ...state, password: payload };
+      }
+      default:
+        return state;
+    }
+  };
+
+  const [state, dispatch] = useReducer(reducer, initalState);
+
+  const { email, password } = state;
+
   const clearFieldEmail = () => {
-    setEmail("");
+    dispatch({ type: loginConstraint.setEmail, payload: "" });
   };
   const clearFieldPassword = () => {
-    setPassword("");
+    dispatch({ type: loginConstraint.setPassword, payload: "" });
   };
 
   //onsubmit htis function call
   const submitform = (e) => {
     e.preventDefault(e);
-    console.log(e.target.elements.email.value);
 
-    // data fetching from  that api
-    fetch("https://reqres.in/api/login", {
-      // Adding method type
-      method: "POST",
-
-      // Adding body or contents to send
-      body: JSON.stringify({
-        email: e.target.elements.email.value,
-        password: e.target.elements.password.value,
-      }),
-
-      // Adding headers to the request
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-      .then((res) => res.json())
+    const schema = yup.object().shape({
+      email: yup.string().email().required(),
+      password: yup.string().min(8).required(),
+    });
+    schema
+      .validate({ email, password }, { abortEarly: false })
       .then((res) => {
-        if (res.error === "user not found") {
-          alert("bad credentials");
-        } else {
-          props.setLogin();
-        }
+        // data fetching from  that api
+        fetch("https://reqres.in/api/login", {
+          // Adding method type
+          method: "POST",
+
+          // Adding body or contents to send
+          body: JSON.stringify({
+            email: e.target.elements.email.value,
+            password: e.target.elements.password.value,
+          }),
+
+          // Adding headers to the request
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        })
+          .then((res) => {
+            console.log(res.status);
+            res.json();
+          })
+          .then((res) => {
+            if (res.error === "user not found") {
+              alert("bad credentials");
+            } else {
+              props.setLogin();
+            }
+          })
+          .catch((e) => console.log(e));
       })
-      .catch((e) => console.log(e));
+      .catch((error) => {
+        error.inner.forEach((e) => console.log(e.path, e.message));
+      });
+
+    console.log(e.target.elements.email.value);
   };
 
   return (
@@ -64,7 +107,11 @@ export const FormCom = (props) => {
               type="email"
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value);
+                dispatch({
+                  type: loginConstraint.setEmail,
+                  payload: e.target.value,
+                });
+                // setEmail(e.target.value);
               }}
               required
             />
@@ -80,7 +127,13 @@ export const FormCom = (props) => {
               placeholder="don't tell!"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                dispatch({
+                  type: loginConstraint.setPassword,
+                  payload: e.target.value,
+                });
+                // setPassword(e.target.value);
+              }}
               required
             />
             <Button onClick={clearFieldPassword}>&times;</Button>
