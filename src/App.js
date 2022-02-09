@@ -4,6 +4,7 @@ import { Project } from './Components/Project'
 import { FormCom } from './Components/form'
 import { useState } from 'react';
 import { Signup } from './Components/Signup';
+import { UserList } from './Components/UserList';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
 
       }
       <Signup />
+      <UserList />
 
     </>
   );
